@@ -1,24 +1,24 @@
-import { HttpError } from 'http-errors'
+import { HttpError } from 'http-errors';
 
 export const errorHandler = (err, req, res, next) => {
     if (err instanceof HttpError) {
-        res.status(500).json({
+        return res.status(err.status).json({
             status: err.status,
-            message: err.name,
-            error: err.message,
+            message: err.message,
         });
-        return;
     }
 
-    res.status(500).json({
+    if (err.name === 'CastError') {
+        return res.status(400).json({
+            status: 400,
+            message: 'Invalid ID format',
+            data: err.message,
+        });
+    }
+
+    return res.status(500).json({
         status: 500,
         message: 'Something went wrong',
         data: err.message,
-    });
-};
-
-export const notFoundHandler = (req, res, next) => {
-    res.status(404).json({
-        message: 'Route not found',
     });
 };

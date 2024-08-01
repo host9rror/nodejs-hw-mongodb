@@ -1,4 +1,7 @@
 import { ContactsCollection } from "../db/models/contact.js";
+import createHttpError from "http-errors";
+import { Router } from "express";
+import ctrlWrapper from "../utils/ctrlWrapper.js";
 
 export const getAllContacts = async () => {
     const contacts = await ContactsCollection.find();
@@ -17,22 +20,17 @@ export const createContact = async (payload) => {
 
 export const patchContact = async (contactId, payload, options = {}) => {
     const rawResult = await ContactsCollection.findOneAndUpdate(
-        {_id: contactId},
+        { _id: contactId },
         payload,
         {
-            new: true.valueOf,
-            includeResultMetadata: true,
+            new: true,
             ...options,
-        },
+        }
     );
 
-    if (!rawResult || !rawResult.value) return null;
-
-    return {
-        contact: rawResult.value,
-        isNew: Boolean(rawResult?.lastErrorObject?.upserted),
-    };
+    return rawResult ? { contact: rawResult, isNew: false } : null;
 };
+
 
 export const deleteContact = async (contactId) => {
     const contact = await ContactsCollection.findOneAndDelete({
@@ -40,4 +38,4 @@ export const deleteContact = async (contactId) => {
     });
 
     return contact;
-}
+};
