@@ -7,8 +7,6 @@ import { SORT_ORDER } from "../constants/index.js";
 import { parseFilterParams } from '../utils/parseFilterParams.js';
 
 
-// src/services/contacts.js
-
 export const getAllContacts = async ({
     page = 1,
     perPage = 10,
