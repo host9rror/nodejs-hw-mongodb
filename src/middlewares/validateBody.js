@@ -4,17 +4,26 @@ export const validateBody = (schema) => async (req, res, next) => {
   try {
     await schema.validateAsync(req.body, {
       abortEarly: false,
+      allowUnknown: true,
     });
     next();
   } catch (err) {
-    const error = createHttpError(400, 'Validation Error', {
-      errors: err.details.map(detail => ({
+    if (err.isJoi) {
+      const errors = err.details.map((detail) => ({
         message: detail.message,
-        path: detail.path,
-      })),
-    });
-    next(error);
+        path: detail.path.join('.'),
+        type: detail.type,
+      }));
+
+      const errorMessages = errors.map((error) => `${error.path}: ${error.message}`);
+      const errorMessage = `Invalid request body. The following fields are invalid:\n${errorMessages}`;
+
+      const error = createHttpError(400, errorMessage, {
+        errors,
+      });
+      next(error);
+    } else {
+      next(err);
+    }
   }
 };
-
-
