@@ -5,15 +5,15 @@ const contactsSchema = new Schema(
     {
         name: {
             type: String,
-            required: true, 
+            required: true,
         },
         phoneNumber: {
             type: String,
-            required: true, 
+            required: true,
         },
         email: {
             type: String,
-            required: false, 
+            required: false,
         },
         isFavourite: {
             type: Boolean,
@@ -21,9 +21,14 @@ const contactsSchema = new Schema(
         },
         contactType: {
             type: String,
-            enum: ['work', 'home', 'personal'], 
+            enum: ['work', 'home', 'personal'],
             required: true,
             default: 'personal',
+        },
+        userId: {
+            type: Schema.Types.ObjectId,
+            required: true,
+            ref: 'User',
         }
     },
     {
