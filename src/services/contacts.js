@@ -56,18 +56,22 @@ export const createContact = async (payload) => {
 };
 
 
-export const patchContact = async (contactId, payload, options = {}, userId) => {
-  const rawResult = await ContactsCollection.findOneAndUpdate(
-      { _id: contactId, userId }, 
-      payload,
-      {
-          new: true,
-          ...options,
-      }
+export const updateContact = async (contactId, payload) => {
+  const contact = await ContactsCollection.findOne({ _id: contactId });
+  if (!contact) {
+    throw createHttpError(404, `Contact with ID ${contactId} not found`);
+  }
+
+  const updatedContact = await ContactsCollection.findOneAndUpdate(
+    { _id: contactId },
+    payload,
+    { new: true }
   );
 
-  return rawResult ? { contact: rawResult, isNew: false } : null;
+  return { contact: updatedContact };
 };
+
+
 
 export const deleteContact = async (contactId, userId) => {
   const contact = await ContactsCollection.findOneAndDelete({

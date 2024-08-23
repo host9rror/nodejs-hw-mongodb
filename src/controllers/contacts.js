@@ -5,11 +5,15 @@ import {
     deleteContact,
     getAllContacts,
     getContactById,
-    patchContact
+    updateContact
 } from '../services/contacts.js';
 import { parsePaginationParams } from '../utils/parsePaginationParams.js';
 import { parseSortParams } from '../utils/parseSortParams.js';
 import { parseFilterParams } from '../utils/parseFilterParams.js';
+import { saveFileToUploadDir } from '../utils/saveFileToUploadDir.js';
+import { saveFileToCloudinary } from '../utils/saveFileToCloudinary.js';
+import { env } from '../utils/env.js';
+
 
 export const getAllContactsController = async (req, res) => {
     const { page, perPage } = parsePaginationParams(req.query);
@@ -77,26 +81,39 @@ export const createContactController = async (req, res, next) => {
     }
 };
 
-
 export const patchContactController = async (req, res, next) => {
-    const { contactId } = req.params;
-    const userId = req.user._id; 
+  const { contactId } = req.params;  // Extract contactId from URL parameters
+  const photo = req.file;  // Extract the uploaded file
 
-    try {
-        const result = await patchContact(contactId, req.body, {}, userId);
+  let photoUrl;
 
-        if (!result) {
-            return next(createHttpError(404, 'Contact not found'));
-        }
-
-        res.json({
-            status: 200,
-            message: 'Successfully patched a contact!',
-            data: result.contact,
-        });
-    } catch (err) {
-        next(err);
+  try {
+    if (photo) {
+      if (env('ENABLE_CLOUDINARY') === 'true') {
+        photoUrl = await saveFileToCloudinary(photo);
+      } else {
+        photoUrl = await saveFileToUploadDir(photo);
+      }
     }
+
+    const result = await updateContact(contactId, {
+      ...req.body,
+      photo: photoUrl,
+    });
+
+    if (!result) {
+      return next(createHttpError(404, 'Contact not found'));
+    }
+
+    res.json({
+      status: 200,
+      message: 'Successfully patched a contact!',
+      data: result.contact,
+    });
+  } catch (err) {
+    console.error('Error in patchContactController:', err);
+    next(err);
+  }
 };
 
 export const deleteContactController = async (req, res, next) => {
