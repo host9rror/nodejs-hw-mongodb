@@ -61,25 +61,46 @@ export const getContactByIdController = async (req, res, next) => {
     }
   };
 
-export const createContactController = async (req, res, next) => {
+  export const createContactController = async (req, res, next) => {
     const { name, phoneNumber, email, isFavourite, contactType } = req.body;
-    const userId = req.user._id; 
-
+    const userId = req.user._id;
+    const photo = req.file; // Extract the uploaded file
+  
     if (!name || !phoneNumber || !contactType) {
-        return next(createHttpError(400, 'Missing required fields'));
+      return next(createHttpError(400, 'Missing required fields'));
     }
-
+  
+    let photoUrl;
+  
     try {
-        const contact = await createContact({ name, phoneNumber, email, isFavourite, contactType, userId });
-        res.status(201).json({
-            status: 201,
-            message: 'Successfully created a contact!',
-            data: contact,
-        });
+      if (photo) {
+        if (env('ENABLE_CLOUDINARY') === 'true') {
+          photoUrl = await saveFileToCloudinary(photo);
+        } else {
+          photoUrl = await saveFileToUploadDir(photo);
+        }
+      }
+  
+      const contact = await createContact({
+        name,
+        phoneNumber,
+        email,
+        isFavourite,
+        contactType,
+        userId,
+        photo: photoUrl, 
+      });
+  
+      res.status(201).json({
+        status: 201,
+        message: 'Successfully created a contact!',
+        data: contact,
+      });
     } catch (err) {
-        next(err);
+      next(err);
     }
-};
+  };
+  
 
 export const patchContactController = async (req, res, next) => {
   const { contactId } = req.params;  // Extract contactId from URL parameters
