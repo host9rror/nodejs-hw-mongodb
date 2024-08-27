@@ -1,0 +1,72 @@
+/auth/refresh-token:
+  post:
+    tags:
+      - Auth
+    summary: Refresh JWT token
+    operationId: refreshToken
+    description: Refresh the JWT token to keep the user logged in.
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            required:
+              - token
+            properties:
+              data:
+                type: string
+                example: "accessToken": "Hf/6MqNwQl8FLmzRyNj2XX/z4E8JgdujLHucZKrr"
+    responses:
+      '200':
+        description: Successfully refreshed a session!.
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - status
+                - message
+                - data
+              properties:
+                status:
+                  type: integer
+                  example: 200
+                message:
+                  type: string
+                  example: Successfully refreshed a session!.
+                token:
+                  type: string
+                  example: "accessToken": "Hf/6MqNwQl8FLmzRyNj2XX/z4E8JgdujLHucZKrr"
+      '400':
+        description: Bad Request - Invalid token format.
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - status
+                - message
+              properties:
+                status:
+                  type: integer
+                  example: 400
+                message:
+                  type: string
+                  example: Bad Request
+      '401':
+        description: Unauthorized - Invalid or expired token.
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - status
+                - message
+              properties:
+                status:
+                  type: integer
+                  example: 401
+                message:
+                  type: string
+                  example: Unauthorized

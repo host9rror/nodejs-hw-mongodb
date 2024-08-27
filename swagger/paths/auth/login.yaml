@@ -1,0 +1,78 @@
+/auth/login:
+  post:
+    tags:
+      - Auth
+    summary: Login a user
+    operationId: loginUser
+    description: Authenticate a user and generate a JWT token.
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            required:
+              - email
+              - password
+            properties:
+              email:
+                type: string
+                format: email
+                example: 'user@example.com'
+              password:
+                type: string
+                format: password
+                example: 'password123'
+    responses:
+      '200':
+        description: Successfully logged in an user!.
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - status
+                - message
+                - data
+              properties:
+                status:
+                  type: integer
+                  example: 200
+                message:
+                  type: string
+                  example: Successfully logged in.
+                data:
+                  type: string
+                  example: '"accessToken": "d1rGqkec6Wpvy+/oC/U1ZPHbYrGU2XfNsOLwvX1H"'
+      '400':
+        description: Bad Request - Invalid email or password.
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - status
+                - message
+              properties:
+                status:
+                  type: integer
+                  example: 400
+                message:
+                  type: string
+                  example: Invalid email or password.
+      '401':
+        description: Unauthorized - Incorrect email or password.
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - status
+                - message
+              properties:
+                status:
+                  type: integer
+                  example: 401
+                message:
+                  type: string
+                  example: Unauthorized

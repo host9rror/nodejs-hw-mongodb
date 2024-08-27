@@ -1,0 +1,98 @@
+/contacts/{contactId}:
+  patch:
+    tags:
+      - Contacts
+    summary: Update a contact by ID
+    operationId: updateContact
+    description: Update details of a specific contact by ID.
+    security:
+      - bearerAuth: []
+    parameters:
+      - in: path
+        name: contactId
+        required: true
+        schema:
+          type: string
+          example: '64ca67e7ae7f10c88b598384'
+        description: The unique identifier of the contact.
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              name:
+                type: string
+                example: 'Jane Doe'
+              phoneNumber:
+                type: string
+                example: '+1234567890'
+              email:
+                type: string
+                example: 'jane.doe@example.com'
+              isFavourite:
+                type: boolean
+                example: false
+              contactType:
+                type: string
+                enum: ['work', 'home', 'personal']
+                example: 'work'
+              photo:
+                type: string
+                example: 'https://example.com/photo.jpg'
+    responses:
+      '200':
+        description: Successfully updated the contact.
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - status
+                - message
+                - data
+              properties:
+                status:
+                  type: integer
+                  example: 200
+                message:
+                  type: string
+                  example: Successfully updated contact.
+                data:
+                  type: object
+                  $ref: '../../components/schemas/contact.yaml'
+      '400':
+        description: Bad Request - Invalid ID format or validation error.
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - status
+                - message
+              properties:
+                status:
+                  type: integer
+                  example: 400
+                message:
+                  type: string
+                  example: Bad Request
+      '404':
+        description: Contact not found.
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - status
+                - message
+              properties:
+                status:
+                  type: integer
+                  example: 404
+                message:
+                  type: string
+                  example: Contact not found with ID 64ca67e7ae7f10c88b598384.
+      '401':
+        $ref: '../../components/responses/401.yaml'
